@@ -38,7 +38,10 @@ apple_h = int(heigth/12)
 #car Names
 car1_name = "GreenCar.png"
 car2_name = "RedCar.png"
-tree="TreeBig.png"
+
+#Random Assest
+assets = ["Bush1.png", "TreeBig.png", "Flag.png"]
+asset1_ran= random.choice(assets)
 fpsClock = pygame.time.Clock()
 
 #Car offset
@@ -55,7 +58,6 @@ car_loc = car.get_rect()
 car_loc.center = right_lane, heigth*0.8
 car_mask = pygame.mask.from_surface(car)
 
-
 #draw second car
 car2 = pygame.image.load(join("Cars",car2_name))
 car2 = pygame.transform.scale(car2,(car_w,car_h))
@@ -63,12 +65,13 @@ car2_loc = car2.get_rect()
 car2_loc.center = left_lane, heigth*0.2
 car2_mask = pygame.mask.from_surface(car2)
 
-#draw tree
-tree = pygame.image.load(join("assets",tree))
-tree = pygame.transform.scale(tree,(car_w,car_h))
-tree_loc = tree.get_rect()
-tree_loc.center = grass_left, heigth*0.2
-tree_mask = pygame.mask.from_surface(tree)
+#draw assets
+asset1 = pygame.image.load(join("assets",asset1_ran))
+asset1 = pygame.transform.scale(asset1,(car_w,car_h))
+asset1_loc = asset1.get_rect()
+asset1_loc.center = grass_left, heigth*0.2
+asset1_mask = pygame.mask.from_surface(asset1)
+
 
 counter = 0
 crash_counter = 0
@@ -96,15 +99,17 @@ while running:
         else:
             car2_loc.center = left_lane, -200
 
-    #spawn a tree
-    tree_loc[1] += speed
-    if tree_loc[1] > heigth:
-        if random.randint(0,1) == 0:
-            tree_loc.center = grass_right , -200
-        else:
-            tree_loc.center = grass_left , -200
+   
+    #spawn a asset1
 
-    #Coliding ??
+    asset1_loc[1] += speed
+    if asset1_loc[1] > heigth:
+        if random.randint(0,1) == 0:
+            asset1_loc.center = grass_right , random.randint(-150, -100)
+        else:
+            asset1_loc.center = grass_left , random.randint(-150, -100)
+
+    #collision ??
     car_mask = pygame.mask.from_surface(car)
     car2_mask = pygame.mask.from_surface(car2)
     if car_mask.overlap(car2_mask, (car2_loc.x - car_loc.x, car2_loc.y - car_loc.y)):
@@ -189,7 +194,7 @@ while running:
     window.blit(counter_lbl, counter_rect)
     window.blit(car, car_loc)
     window.blit(car2, car2_loc)
-    window.blit(tree, tree_loc)
+    window.blit(asset1, asset1_loc)
     pygame.display.update()
             
 pygame.quit
