@@ -31,7 +31,6 @@ left_lane = width/2 - road_w/4
 grass_right = width - road_w/4
 grass_left =  road_w/4
 
-
 #assets
 apple_w = int(width/12)
 apple_h = int(heigth/12)
@@ -70,7 +69,7 @@ asset1 = pygame.image.load(join("assets",asset1_ran))
 asset1 = pygame.transform.scale(asset1,(car_w,car_h))
 asset1_loc = asset1.get_rect()
 asset1_loc.center = grass_left, heigth*0.2
-asset1_mask = pygame.mask.from_surface(asset1)
+asset1_mask = pygame.mask.from_surface(asset1) 
 
 
 counter = 0
@@ -78,11 +77,11 @@ crash_counter = 0
 
 clock = pygame.time.Clock()
 running = True
-
-
+crash = False
 
 while running:
     clock.tick(FPS)
+    
     
     #level
     counter += 1
@@ -94,6 +93,7 @@ while running:
     #spawn new car
     car2_loc[1] += speed
     if car2_loc[1] > heigth:
+        crash = False
         if random.randint(0,1) == 0:
             car2_loc.center = right_lane, -200
         else:
@@ -101,7 +101,6 @@ while running:
 
    
     #spawn a asset1
-
     asset1_loc[1] += speed
     if asset1_loc[1] > heigth:
         if random.randint(0,1) == 0:
@@ -110,12 +109,12 @@ while running:
             asset1_loc.center = grass_left , random.randint(-150, -100)
 
     #collision ??
-    car_mask = pygame.mask.from_surface(car)
-    car2_mask = pygame.mask.from_surface(car2)
+    car_mask = pygame.mask.from_surface(car)    # The two cars are colliding
+    car2_mask = pygame.mask.from_surface(car2)    # The two cars are colliding
     if car_mask.overlap(car2_mask, (car2_loc.x - car_loc.x, car2_loc.y - car_loc.y)):
-    # The two cars are colliding
-    # Add your collision handling code here
-        crash_counter += 1
+        if crash == False:
+            crash_counter += 1
+            crash = True
 
     # check exit Quit
     for event in pygame.event.get():
