@@ -19,7 +19,7 @@ window = pygame.display.set_mode((size))
 
 #sprites Variables
 road_w = int(width/2)
-
+roadmark_w = int(width/80)
 car_w = int(width/6)
 car_h = int(height/4)
 
@@ -64,7 +64,7 @@ class Background:
 class Assets:
     def __init__(self,name,transform):
         self.name = name
-        self.center = grass_left, height * 0.2
+        self.center = grass_left, height * 2
         self.transform = transform
     
     def asset_draw(self):
@@ -84,7 +84,7 @@ class Assets:
 
     def asset_movement(self):
         self.loc [1] += speed
-        if self.loc[1] > height:
+        if self.loc[1] > height:            
             if random.randint(0,1) == 0:
                 self.loc.center = grass_right , random.randint(-150, -100)
             else:
@@ -96,17 +96,34 @@ class Assets:
 
 
 
-tree = Assets ("Bush1.png",(car_w,car_h))
+#defining the Assets
 flag = Assets ("Flag.png",(car_w,car_h))
+tree = Assets ("Bush1.png",(car_w,car_h))
 
-green_back =Background((255,255,255),width/2-road_w/2,0,road_w,height )
+#define the Background
+grass_background = Background((30,180,15),0,0,width,height)
+street_background =Background((50,50,50),width/2-road_w/2,0,road_w,height )
+right_boardermarking = Background((255,255,255), width/2 + road_w/2 - roadmark_w * 3, 0, roadmark_w, height )
+left_boardermarking = Background((255,255,255), width/2 - road_w/2 + roadmark_w * 2, 0, roadmark_w, height)
+
+
+move_flag = False
+#drawing the assets
 
 tree.asset_draw()
 flag.asset_draw()
 
+test = 0 
+external = test
+
+    
 
 run = True
 clock = pygame.time.Clock()
+
+
+
+
 while run:
     
 
@@ -115,14 +132,21 @@ while run:
         if event.type == QUIT:
             run = False
             break 
-
     
-    flag.asset_movement()
+
+    grass_background.back_drawing()
+    street_background.back_drawing()
+    right_boardermarking.back_drawing()
+    left_boardermarking.back_drawing()
+    
+
+
     tree.asset_movement()
-
-
-    gray.detail()
-    green_back.back_drawing()
+    flag.asset_movement()
+    
+   
+    print(external, "" , test)
+    
 
 
     pygame.display.update()
