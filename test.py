@@ -62,7 +62,7 @@ class Background:
 
 
 class Assets:
-    def __init__(self,name,transform, draw_offset:
+    def __init__(self,name,transform, draw_offset):
         self.name = name
         if random.randint(0,1) == 0:
             self.center = grass_left, draw_offset
@@ -162,4 +162,3 @@ while run:
     pygame.display.update()
     
 pygame.quit
-
