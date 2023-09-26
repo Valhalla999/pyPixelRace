@@ -28,8 +28,8 @@ right_lane = width/2 + road_w/4
 left_lane = width/2 - road_w/4
 
 #grass
-grass_right = width - road_w/4
-grass_left = road_w/4
+grass_right = int(width - road_w/4)
+grass_left = int(road_w/4)
 
 
 assets = ["Bush1.png","Flag.png"]
@@ -62,9 +62,13 @@ class Background:
 
 
 class Assets:
-    def __init__(self,name,transform):
+    def __init__(self,name,transform, draw_offset:
         self.name = name
-        self.center = grass_left, height * 2
+        if random.randint(0,1) == 0:
+            self.center = grass_left, draw_offset
+        else:
+            self.center = grass_right, draw_offset
+
         self.transform = transform
     
     def asset_draw(self):
@@ -86,19 +90,44 @@ class Assets:
         self.loc [1] += speed
         if self.loc[1] > height:            
             if random.randint(0,1) == 0:
-                self.loc.center = grass_right , random.randint(-150, -100)
+                self.loc.center = grass_right, random.randint (-150, -10)
             else:
-                self.loc.center = grass_left , random.randint(-150, -100)
+                self.loc.center = grass_left, random.randint (-150, -10)
         window.blit(self.image, self.loc)
 
 
 
+def crash(Assets_list):
+    for i in range(len(Assets_list)):
+        for j in range(i+1, len(Assets_list)):
+            if Asset_list[i].mask.overlap(Asset_list[j].mask, (Asset_list[j].loc.x - Asset_list[i].loc.x, Asset_list[j].loc.y - Asset_list[i].loc.y)):
+                Asset_list[i].loc[1] -= 50 
+                print("crash", tree.loc.y , tree2.loc.y)
+        else:
+            pass
 
 
+#define the offset
+tree_offset = 0
+tree2_offset = 0
+flag_offset = 0
 
 #defining the Assets
-flag = Assets ("Flag.png",(car_w,car_h))
-tree = Assets ("Bush1.png",(car_w,car_h))
+flag = Assets ("Flag.png",(car_w,car_h),flag_offset)
+tree = Assets ("Bush1.png",(car_w,car_h),tree_offset)
+tree2 = Assets ("TreeBig.png",(car_w,car_h),tree2_offset)
+
+#draw the assets
+tree.asset_draw()
+tree2.asset_draw()
+flag.asset_draw()
+#collision ??
+Asset_list = [tree, tree2, flag]
+
+# tree01 = pygame.mask.from_surface(tree)    # The two cars are colliding
+# tree02 = pygame.mask.from_surface(tree2)    # The two cars are colliding
+
+
 
 #define the Background
 grass_background = Background((30,180,15),0,0,width,height)
@@ -107,22 +136,8 @@ right_boardermarking = Background((255,255,255), width/2 + road_w/2 - roadmark_w
 left_boardermarking = Background((255,255,255), width/2 - road_w/2 + roadmark_w * 2, 0, roadmark_w, height)
 
 
-move_flag = False
-#drawing the assets
-
-tree.asset_draw()
-flag.asset_draw()
-
-test = 0 
-external = test
-
-    
-
 run = True
 clock = pygame.time.Clock()
-
-
-
 
 while run:
     
@@ -133,23 +148,18 @@ while run:
             run = False
             break 
     
-
     grass_background.back_drawing()
     street_background.back_drawing()
     right_boardermarking.back_drawing()
     left_boardermarking.back_drawing()
-    
-
-
     tree.asset_movement()
+    tree2.asset_movement()
     flag.asset_movement()
+    crash(Asset_list)
     
-   
-    print(external, "" , test)
-    
-
+    #print(tree.loc.centery, tree2.loc.centery, flag.loc.centery)
 
     pygame.display.update()
-
     
 pygame.quit
+
