@@ -13,7 +13,9 @@ pygame.display.set_caption("Pixie Racer")
 #Main Variables
 size = width, height = (1024,768)
 speed = 3
-FPS = 30
+FPS = 60
+Player_car = "GreenCar.png"
+
 
 window = pygame.display.set_mode((size))
 
@@ -22,6 +24,8 @@ road_w = int(width/2)
 roadmark_w = int(width/80)
 car_w = int(width/6)
 car_h = int(height/4)
+bush_w =int(100)
+bush_h = int(100)
 
 #lanes
 right_lane = width/2 + road_w/4
@@ -31,19 +35,44 @@ left_lane = width/2 - road_w/4
 grass_right = int(width - road_w/4)
 grass_left = int(road_w/4)
 
+#Create the assets list
+asset_list = []
 
-assets = ["Bush1.png","Flag.png"]
-#Test Class
 
-class TestRect:
-    def __init__(self, name, clr):
+class Player:
+    def __init__(self, name, draw_offset, transform):
         self.name = name
-        self.colour = clr
+        self.center = right_lane, draw_offset
+        self.transform = transform
+    
+    def player_draw(self):
+        # Load the image from the assets folder
+        self.image = pygame.image.load(join("Cars",self.name))
+        # transform the object
+        self.image = pygame.transform.scale(self.image,(self.transform))
+        #Get the rect object of the image
+        self.loc = self.image.get_rect()
+        # Move the rect to the center position
+        self.loc.center = self.center
+        # Get the mask object of the image
+        self.mask = pygame.mask.from_surface(self.image)
+        # Draw the image on the screen
+        window.blit(self.image, self.loc)
 
-    def detail(self):
-        print(self.name + " my color is " + self.colour)
-        
-gray =TestRect("hope still working", "Red")
+    def player_movement(self):
+        if event.type == KEYDOWN:
+            if event.key in [K_a, K_LEFT]:
+                if self.loc.centerx ==  left_lane:
+                    pass
+                else:
+                    self.loc = self.loc.move([-int(road_w / 2),0])
+
+            if event.key in [K_d, K_RIGHT]:
+                if self.loc.centerx == right_lane:
+                    pass
+                else:
+                    self.loc = self.loc.move([int(road_w / 2),0])
+        window.blit(self.image, self.loc)                 
 
 
 class Background:
@@ -59,6 +88,7 @@ class Background:
         window,
         (self.colour),
         (self.positionx,self.positiony,self.width, self.height))
+
 
 
 class Assets:
@@ -85,7 +115,6 @@ class Assets:
         # Draw the image on the screen
         window.blit(self.image, self.loc)
 
-
     def asset_movement(self):
         self.loc [1] += speed
         if self.loc[1] > height:            
@@ -96,68 +125,196 @@ class Assets:
         window.blit(self.image, self.loc)
 
 
-
-def crash(Assets_list):
-    for i in range(len(Assets_list)):
-        for j in range(i+1, len(Assets_list)):
-            if Asset_list[i].mask.overlap(Asset_list[j].mask, (Asset_list[j].loc.x - Asset_list[i].loc.x, Asset_list[j].loc.y - Asset_list[i].loc.y)):
-                Asset_list[i].loc[1] -= 50 
-                print("crash", tree.loc.y , tree2.loc.y)
+def asset_collision(asset_list):
+    for i in range(len(asset_list)):
+        for j in range(i+1, len(asset_list)):
+            if asset_list[i].mask.overlap(asset_list[j].mask, (asset_list[j].loc.x - asset_list[i].loc.x, asset_list[j].loc.y - asset_list[i].loc.y)):
+                asset_list[i].loc[1] -= random.randint (10,450) 
+                #Crash sound
         else:
             pass
 
 
-#define the offset
-tree_offset = 0
-tree2_offset = 0
-flag_offset = 0
+class middle_line:
+    def __init__(self,name,transform, draw_offset):
+        self.name = name
+        self.center = width/2, draw_offset
+        self.transform = transform
+    
+    def middle_line_draw(self):
+        # Load the image from the assets folder
+        self.image = pygame.image.load(join("assets",self.name))
+        # transform the object
+        self.image = pygame.transform.scale(self.image,(self.transform))
+        #Get the rect object of the image
+        self.loc = self.image.get_rect()
+        # Move the rect to the center position
+        self.loc.center = self.center
+        # Get the mask object of the image
+        self.mask = pygame.mask.from_surface(self.image)
+        # Draw the image on the screen
+        window.blit(self.image, self.loc)
+
+    def middle_line_move(self):
+        self.loc [1] += speed
+        if self.loc[1] > height:            
+            self.loc.center = width/2, -50
+        window.blit(self.image, self.loc)
+
+
+class Labels:
+    def __init__(self, text, size, colour, position):
+        self.text = text
+        self.size = size
+        self.colour = colour
+        self.position = position
+
+    def label_draw(self):
+        self.font = pygame.font.SysFont("Arial", self.size)
+        self.text = self.font.render(self.text, True, self.colour)
+        self.textRect = self.text.get_rect()
+        self.textRect.center = self.position
+        window.blit(self.text, self.textRect)
+
+
+
+class enemie:
+    def __init__(self,name,transform, draw_offset):
+        self.name = name
+        if random.randint(0,1) == 0:
+            self.center = left_lane, draw_offset
+        else:
+            self.center = right_lane, draw_offset
+        self.transform = transform
+    
+    def enemie_draw(self):
+        # Load the image from the assets folder
+        self.image = pygame.image.load(join("enemies",self.name))
+        # transform the object
+        self.image = pygame.transform.scale(self.image,(self.transform))
+        #Get the rect object of the image
+        self.loc = self.image.get_rect()
+        # Move the rect to the center position
+        self.loc.center = self.center
+        # Get the mask object of the image
+        self.mask = pygame.mask.from_surface(self.image)
+        # Draw the image on the screen
+        window.blit(self.image, self.loc)
+
+    def enemie_movement(self):
+        self.loc [1] += speed
+        if self.loc[1] > height: 
+            crash = False          
+            if random.randint(0,1) == 0:
+                self.loc.center = right_lane, random.randint (-150, -10)
+            else:
+                self.loc.center = left_lane, random.randint (-150, -10)
+        window.blit(self.image, self.loc)
+
+
+#defining the offset
+asset_main_offset = 0
 
 #defining the Assets
-flag = Assets ("Flag.png",(car_w,car_h),flag_offset)
-tree = Assets ("Bush1.png",(car_w,car_h),tree_offset)
-tree2 = Assets ("TreeBig.png",(car_w,car_h),tree2_offset)
+bush_amount = 0
+bushes = []
 
-#draw the assets
-tree.asset_draw()
-tree2.asset_draw()
-flag.asset_draw()
-#collision ??
-Asset_list = [tree, tree2, flag]
+while bush_amount < 10:
+   bush_name = "bush" + str(bush_amount + 1)
+   bushes.append(Assets("Bush1.png", (bush_w, bush_h), asset_main_offset))
+   asset_list.append(bushes[bush_amount])
+   bush_amount += 1
+#defining treeBig assets
+tree_amount = 0
+trees = []
+while tree_amount < 4:
+   tree_name = "tree" + str(tree_amount + 1)
+   trees.append(Assets("TreeBig.png", (car_w,car_h), asset_main_offset))
+   asset_list.append(trees[tree_amount])
+   tree_amount += 1
 
-# tree01 = pygame.mask.from_surface(tree)    # The two cars are colliding
-# tree02 = pygame.mask.from_surface(tree2)    # The two cars are colliding
 
+#define and draw player
+player1 = Player(Player_car, height -100, (car_w,car_h))
+player1.player_draw()
 
+#define enemie
+enemiecar1 = enemie("RedCar.png", (car_w,car_h), -200)
+enemiecar1.enemie_draw()
 
-#define the Background
+#random draw the assets
+for i in range(len(asset_list)):
+    asset_list[i].asset_draw()
+
+#define the Background     
 grass_background = Background((30,180,15),0,0,width,height)
 street_background =Background((50,50,50),width/2-road_w/2,0,road_w,height )
 right_boardermarking = Background((255,255,255), width/2 + road_w/2 - roadmark_w * 3, 0, roadmark_w, height )
 left_boardermarking = Background((255,255,255), width/2 - road_w/2 + roadmark_w * 2, 0, roadmark_w, height)
 
+#middle line
+middle = middle_line("Flag.png", (car_w, car_h), -50)
+middle.middle_line_draw()
 
+counter = 0 
 run = True
 clock = pygame.time.Clock()
+crash = False
 
 while run:
     
+    counter += 1
+    if counter == 150:
+        speed +=1
+        counter = 0
+        print("Level Up", speed)
+    
 
+
+    #Base Data
     clock.tick(FPS)
     for event in pygame.event.get():
         if event.type == QUIT:
             run = False
             break 
+
+    if player1.mask.overlap(enemiecar1.mask, (enemiecar1.loc.x  - player1.loc.x , enemiecar1.loc.y - player1.loc.y)):
+        if crash == False:
+            print("Crash")
+            crash = True
     
+            
+    # Background drawing
     grass_background.back_drawing()
     street_background.back_drawing()
     right_boardermarking.back_drawing()
     left_boardermarking.back_drawing()
-    tree.asset_movement()
-    tree2.asset_movement()
-    flag.asset_movement()
-    crash(Asset_list)
+
+    middle.middle_line_move()
+
+   
+    #assets movement
+    for i in range(len(asset_list)):
+        asset_list[i].asset_movement()
     
-    #print(tree.loc.centery, tree2.loc.centery, flag.loc.centery)
+    #enemie movement
+    enemiecar1.enemie_movement()
+
+    #Player movement
+    player1.player_movement()
+    
+    
+
+    asset_collision(asset_list)
+
+    #labels
+    speed_lbl = Labels(str(speed), 20, (255,255,255), (width/2, 20))
+    counter_lbl = Labels(str(counter), 20, (255,255,255), (width/2, 50))
+
+
+    speed_lbl.label_draw()
+    counter_lbl.label_draw()
+
 
     pygame.display.update()
     
