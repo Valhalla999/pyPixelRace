@@ -19,6 +19,7 @@ Player_car = "Green_F1_Car.png"
 enemie_car_png = "Blue_F1_Car.png"
 crash = False
 main_lives = 4 
+loot_collision = False
 
 #Colours
 grass_green = (30,180,15)
@@ -46,6 +47,7 @@ grass_left = int(road_w/4)
 #Create the assets list
 asset_list = []
 
+
 #defining the offset
 asset_main_offset = 0
 
@@ -58,6 +60,13 @@ bush_max = 10
 tree_amount = 0
 trees = []
 tree_max = 4
+
+#defining scores
+score = 0
+
+coin_score = 5
+banana_score = 1
+
 
 class Player:
     def __init__(self, name, draw_offset, transform):
@@ -236,6 +245,66 @@ class enemie:
                 self.loc.center = left_lane, random.randint (-150, -10)
         window.blit(self.image, self.loc)
 
+class loot:
+    def __init__(self,name,transform, draw_offset,crash,rotation,score):
+        self.name = name
+        if random.randint(0,1) == 0:
+            self.center = left_lane, draw_offset
+        else:
+            self.center = right_lane, draw_offset
+        self.transform = transform
+        self.crash = crash
+        self.rotation = rotation
+        self.score = score
+           
+
+    def loot_draw(self):
+        # Load the image from the assets folder
+        self.image = pygame.image.load(join("assets",self.name)).convert_alpha()
+        # transform the object
+        self.image = pygame.transform.scale(self.image,(self.transform))
+        #Get the rect object of the image
+        self.loc = self.image.get_rect()
+        # Move the rect to the center position
+        self.loc.center = self.center
+        # Get the mask object of the image
+        self.mask = pygame.mask.from_surface(self.image)
+        # Draw the image on the screen
+        window.blit(self.image, self.loc)
+
+    def loot_movement(self):
+        global loot_collision
+        loot_collision = False
+        if self.mask.overlap(enemiecar1.mask, (enemiecar1.loc.x  - self.loc.x , enemiecar1.loc.y - self.loc.y)):
+            self.loc.y -= random.randint(25, 125)
+        else:
+            pass
+        self.loc [1] += speed
+        if self.loc[1] > height:                   
+            if random.randint(0,1) == 0: 
+                self.loc.center = right_lane, random.randint (-150, -10)
+            else:
+                self.loc.center = left_lane, random.randint (-150, -10)
+        window.blit(self.image, self.loc)
+
+
+    def car_collision(self):
+        global score
+        global loot_collision
+        if self.mask.overlap(player1.mask, (player1.loc.x  - self.loc.x , player1.loc.y - self.loc.y)):
+            if loot_collision == False:
+                print ("Crash")
+                score += self.score
+                loot_collision = True
+                self.loc.centery = - 150
+            else:
+                pass        
+        window.blit(self.image, self.loc)
+
+    
+
+        
+
 
 
 while bush_amount < bush_max:
@@ -281,6 +350,10 @@ player1.player_draw()
 enemiecar1 = enemie(enemie_car_png, (car_w,car_h), -200, crash,180)
 enemiecar1.enemie_draw()
 
+#define the loot
+coin = loot("Coin.png", (50,50), -150, crash,180, coin_score)
+coin.loot_draw()
+
 #random draw the assets
 for i in range(len(asset_list)):
     asset_list[i].asset_draw()
@@ -294,7 +367,7 @@ left_boardermarking = Background((boarder_white), width/2 - road_w/2 + roadmark_
 
 
 #middle line
-middle = middle_line("Coin.png", (90, 90), -50)
+middle = middle_line("Bomb.png", (90, 90), -50)
 middle.middle_line_draw()
 
 counter = 0 
@@ -312,7 +385,6 @@ while run:
     
 
     counter += 1
-
     if counter == 200:
         speed += 1
         counter = 0
@@ -326,6 +398,10 @@ while run:
             print("Crash")
             main_lives -= 1
             crash = True
+
+    #loot and enemie collision
+
+
     
             
     # Background drawing
@@ -342,14 +418,18 @@ while run:
         asset_list[i].asset_movement()
 
     asset_collision(asset_list)
-    
-        
+           
     
     #enemie movement
     enemiecar1.enemie_movement()
 
     #Player movement
     player1.player_movement()
+
+    #loot
+    coin.loot_movement()
+    coin.car_collision()
+    
     
     if main_lives == 4:
         lieve4.lives_draw()
@@ -369,11 +449,13 @@ while run:
     speed_lbl = Labels(str(speed), 20, (255,255,255), (width/2, 20))
     counter_lbl = Labels(str(counter), 20, (255,255,255), (width/2, 50))
     fps_lbl = Labels(str(int(clock.get_fps())), 20, (255,255,255), (width/2, 80))
+    money = Labels(str(int(score)), 20, (255,255,255), (width/2, 110))
 
 
     speed_lbl.label_draw()
     counter_lbl.label_draw()
     fps_lbl.label_draw()
+    money.label_draw() 
 
     
     pygame.display.update()
