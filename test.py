@@ -172,7 +172,7 @@ class middle_line:
     
     def middle_line_draw(self):
         # Load the image from the assets folder
-        self.image = pygame.image.load(join("assets",self.name))
+        self.image = pygame.image.load(join("assets",self.name)).convert_alpha()
         # transform the object
         self.image = pygame.transform.scale(self.image,(self.transform))
         #Get the rect object of the image
@@ -240,9 +240,9 @@ class enemie:
             global crash
             crash = False          
             if random.randint(0,1) == 0:
-                self.loc.center = right_lane, random.randint (-150, -10)
+                self.loc.center = right_lane, random.randint (-150, -50)
             else:
-                self.loc.center = left_lane, random.randint (-150, -10)
+                self.loc.center = left_lane, random.randint (-150, -50)
         window.blit(self.image, self.loc)
 
 class loot:
@@ -302,10 +302,6 @@ class loot:
         window.blit(self.image, self.loc)
 
     
-
-        
-
-
 
 while bush_amount < bush_max:
     bush_name = "bush" + str(bush_amount + 1)
@@ -374,6 +370,10 @@ counter = 0
 run = True
 clock = pygame.time.Clock()
 
+obstacle_timer = pygame.USEREVENT +1
+pygame.time.set_timer(obstacle_timer, 900 )
+
+
 while run:
        
     #Base Data
@@ -382,16 +382,18 @@ while run:
         if event.type == QUIT:
             run = False
             break 
+
+        if event.type == obstacle_timer:
+            print('timer is working')
+            enemiecar1.enemie_movement()
+
     
 
     counter += 1
     if counter == 200:
         speed += 1
         counter = 0
-        print("Speed :",round(speed,2))
 
-
-    print(counter)
     #Collision Player/Enemiecar
     if player1.mask.overlap(enemiecar1.mask, (enemiecar1.loc.x  - player1.loc.x , enemiecar1.loc.y - player1.loc.y)):
         if crash == False:
@@ -400,7 +402,6 @@ while run:
             crash = True
 
     #loot and enemie collision
-
 
     
             
@@ -418,8 +419,7 @@ while run:
         asset_list[i].asset_movement()
 
     asset_collision(asset_list)
-           
-    
+
     #enemie movement
     enemiecar1.enemie_movement()
 
