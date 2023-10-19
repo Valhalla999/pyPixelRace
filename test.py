@@ -6,6 +6,7 @@ from pygame.locals import *
 from os import listdir
 from os.path import isfile, join
 from time import sleep
+import button
 
 pygame.init()
 
@@ -13,18 +14,16 @@ pygame.display.set_caption("Pixie Racer")
 
 #Main Variables
 size = width, height = (1024, 768)
-speed = 3
+speed = 5
 FPS = 60
 Player_car = "Green_F1_Car.png"
 enemie_car_png = "Blue_F1_Car.png"
 crash = False
 main_lives = 4 
 loot_collision = False
+game_paused = True
 
-#GameStates
-game_paused = False
-
-#Colours
+#Background color
 grass_green = (30,180,15)
 street_gray = (50,50,50)
 boarder_white = (255,255,255)
@@ -47,24 +46,19 @@ left_lane = width/2 - road_w/4
 grass_right = int(width - road_w/4)
 grass_left = int(road_w/4)
 
-#Create the assets list
+#assetsManager
 asset_list = []
-
-
-#defining the offset
-asset_main_offset = 0
-
-#defining the Assets
-bush_amount = 0
 bushes = []
-bush_max = 10
-
-#defining treeBig assets
-tree_amount = 0
 trees = []
+asset_main_offset = 0
+bush_amount = 0
+tree_amount = 0
+bush_max = 10
 tree_max = 4
+lives_size  = 125,125
+lives_location = (width/2,60)
 
-#defining scores
+#ScoreList
 score = 0
 coin_score = 5
 banana_score = 1
@@ -76,6 +70,13 @@ def draw_text(text,font,text_col,x,y):
     img = font.render(text, True, text_col)
     window.blit(img, (x,y))
 
+resume_img = pygame.image.load("Menu/button_resume.png").convert_alpha()
+quit_img = pygame.image.load("Menu/button_quit.png").convert_alpha()
+
+
+#createButtons
+resume_button = button.Button(width/2-(191/2), height/4,resume_img,1)
+quit_button = button.Button(width/2-(128/2), height/4+240, quit_img, 1)
 
 
 #Classe 
@@ -331,58 +332,51 @@ while tree_amount < tree_max:
    asset_list.append(trees[tree_amount])
    tree_amount += 1
 
-
-
-#Healthbar
-lives_size  = 125,125
-lives_location = (width/2,60)
+#LoadInstance
 #lives
 live1 = health_bar("Heart_1.png", (lives_size), (lives_location))
 lieve2 = health_bar("Heart_2.png", (lives_size), (lives_location))
 lieve3 = health_bar("Heart_3.png", (lives_size), (lives_location))
 lieve4 = health_bar("Heart_4.png", (lives_size), (lives_location))
-
-#define and draw player
+#loot
+coin = loot("Coin.png", (50,50), -150, crash, 180, coin_score)
+#player/Enemie
 player1 = Player(Player_car, height -100, (car_w,car_h))
+enemiecar1 = enemie(enemie_car_png, (car_w,car_h), -150, crash,180)
+enemiecar1 = enemie(enemie_car_png, (car_w,car_h), -150, crash,180)
+#Background
+grass_background = Background((grass_green),0,0,width,height)
+street_background =Background((street_gray),width/2-road_w/2,0,road_w,height )
+right_boardermarking = Background((boarder_white), width/2 + road_w/2 - roadmark_w * 3, 0, roadmark_w, height )
+left_boardermarking = Background((boarder_white), width/2 - road_w/2 + roadmark_w * 2, 0, roadmark_w, height)
+middle = middle_line("Bomb.png", (90, 90), -50)
+
+
+#draw
 player1.player_draw()
-
-#define enemie
-enemiecar1 = enemie(enemie_car_png, (car_w,car_h), -200, crash,180)
 enemiecar1.enemie_draw()
-
-#define the loot
-coin = loot("Coin.png", (50,50), -150, crash,180, coin_score)
 coin.loot_draw()
+middle.middle_line_draw()
 
 #random draw the assets
 for i in range(len(asset_list)):
     asset_list[i].asset_draw()
 
-#define the Background     
-grass_background = Background((grass_green),0,0,width,height)
-street_background =Background((street_gray),width/2-road_w/2,0,road_w,height )
-right_boardermarking = Background((boarder_white), width/2 + road_w/2 - roadmark_w * 3, 0, roadmark_w, height )
-left_boardermarking = Background((boarder_white), width/2 - road_w/2 + roadmark_w * 2, 0, roadmark_w, height)
 
-#middle line
-middle = middle_line("Bomb.png", (90, 90), -50)
-middle.middle_line_draw()
-
+#Main Variables
 counter = 0 
-
 clock = pygame.time.Clock()
-
 obstacle_timer = pygame.USEREVENT +1
 pygame.time.set_timer(obstacle_timer, 900 )
-
 run = True
-while run:
 
+#MainLoop
+while run:
+    
     grass_background.back_drawing()
     street_background.back_drawing()
     right_boardermarking.back_drawing()
     left_boardermarking.back_drawing()
-
 
     clock.tick(FPS)
     for event in pygame.event.get():
@@ -396,7 +390,19 @@ while run:
    
     #check game state paused
     if game_paused == True:
-        pass
+        money = Labels(str(int(score)), 50, (255,255,255), (width/2, 110))
+        money.label_draw()
+        if resume_button.draw(window):
+            if main_lives ==0:
+                score=0
+                main_lives = 4
+                speed = 5
+                game_paused = False
+            else:
+                game_paused = False
+        if quit_button.draw(window):
+            run = False
+
     else:
         counter += 1
         if counter == 200:
@@ -404,7 +410,7 @@ while run:
             counter = 0 
 
         if event.type == obstacle_timer:
-            print('timer is working')
+
             enemiecar1.enemie_movement()
           #Collision Player/Enemiecar
         if player1.mask.overlap(enemiecar1.mask, (enemiecar1.loc.x  - player1.loc.x , enemiecar1.loc.y - player1.loc.y)):
@@ -419,19 +425,18 @@ while run:
         for i in range(len(asset_list)):
             asset_list[i].asset_movement()
 
+        
         asset_collision(asset_list)
 
-        #enemie movement
-        enemiecar1.enemie_movement()
-
         #Player movement
+        enemiecar1.enemie_movement()
         player1.player_movement()
 
         #loot
         coin.loot_movement()
         coin.car_collision()
         
-        
+        #HealthBar
         if main_lives == 4:
             lieve4.lives_draw()
         elif main_lives == 3:
@@ -442,16 +447,16 @@ while run:
             live1.lives_draw()
         elif main_lives == 0:
             print("Game Over")
-            run = False
-            break
+            game_paused = True
+
         
 
         #labels
         speed_lbl = Labels(str(speed), 20, (255,255,255), (width/2, 20))
         counter_lbl = Labels(str(counter), 20, (255,255,255), (width/2, 50))
         fps_lbl = Labels(str(int(clock.get_fps())), 20, (255,255,255), (width/2, 80))
-        money = Labels(str(int(score)), 20, (255,255,255), (width/2, 110))
-
+        money = Labels(str(int(score)), 50, (255,255,255), (width/2, 110))
+    
         speed_lbl.label_draw()
         counter_lbl.label_draw()
         fps_lbl.label_draw()
