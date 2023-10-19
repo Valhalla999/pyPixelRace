@@ -6,7 +6,7 @@ from pygame.locals import *
 from os import listdir
 from os.path import isfile, join
 #check if github is working
-#i hope now its working
+#Can you Read
 
 pygame.init()
 
