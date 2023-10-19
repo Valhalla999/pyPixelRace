@@ -394,8 +394,12 @@ while run:
     street_background.back_drawing()
     right_boardermarking.back_drawing()
     left_boardermarking.back_drawing()
-    Info_lbl = Labels(str("Press Space  "),50, (255,255,255), (width - grass_right, height/4))
-    Info_lbl1 = Labels(str(" for Pause "),50, (255,255,255), (width - grass_right, height/4+50))
+
+    Info_lbl = Labels(str("Press Space  "),30, (255,255,255), (width - grass_right, height-50))
+    Info_lbl1 = Labels(str(" for Pause "),30, (255,255,255), (width - grass_right, height-20))
+    movement_lbl =Labels(str("Use the Arrow Keys " ), 50, (255,255,255), (width/2, height/2-50))
+    movement_lbl1 =Labels(str("to move left / right" ), 50, (255,255,255), (width/2, height/2))
+
 
 
     for event in pygame.event.get():
@@ -411,6 +415,9 @@ while run:
     if game_paused == True:
         money = Labels(str(int(score)), 50, (255,255,255), (width/2, 110))
         money.label_draw()
+        movement_lbl.label_draw()
+        movement_lbl1.label_draw()
+
         if resume_button.draw(window):
             if main_lives ==0:
                 score=0
