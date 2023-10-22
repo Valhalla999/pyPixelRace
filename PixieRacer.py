@@ -14,8 +14,8 @@ pygame.display.set_caption("Pixie Racer")
 
 #Main Variables
 size = width, height = (1024,768)
-speed = 5 #change also in Menu function
-FPS = 60
+speed = 2 #change also in Menu function
+FPS = 120
 Player_car = "Green_F1_Car.png"
 enemie_car_png = "Blue_F1_Car.png"
 crash = False
@@ -357,7 +357,12 @@ grass_background = Background((grass_green),0,0,width,height)
 street_background =Background((street_gray),width/2-road_w/2,0,road_w,height )
 right_boardermarking = Background((boarder_white), width/2 + road_w/2 - roadmark_w * 3, 0, roadmark_w, height )
 left_boardermarking = Background((boarder_white), width/2 - road_w/2 + roadmark_w * 2, 0, roadmark_w, height)
-middle = middle_line("Bomb.png", (90, 90), -50)
+
+
+middle = middle_line("middle_Line.png", (180,180), 0)
+middle2 = middle_line("middle_Line.png", (180,180), -250)
+middle3 = middle_line("middle_Line.png", (180,180), -500)
+middle4 = middle_line("middle_Line.png", (180,180), -750)
 #Buttons
 resume_button = button.Button(width/2-(191/2), height/4,resume_img,1)
 quit_button = button.Button(width/2-(128/2), height/4+240, quit_img, 1)
@@ -368,6 +373,9 @@ player1.player_draw()
 enemiecar1.enemie_draw()
 coin.loot_draw()
 middle.middle_line_draw()
+middle2.middle_line_draw()
+middle3.middle_line_draw()
+middle4.middle_line_draw()
 
 #random draw the assets
 for i in range(len(asset_list)):
@@ -394,6 +402,7 @@ while run:
     street_background.back_drawing()
     right_boardermarking.back_drawing()
     left_boardermarking.back_drawing()
+
 
     Info_lbl = Labels(str("Press Space  "),30, (255,255,255), (width - grass_right, height-50))
     Info_lbl1 = Labels(str(" for Pause "),30, (255,255,255), (width - grass_right, height-20))
@@ -423,7 +432,7 @@ while run:
                 score=0
                 main_lives = 4
                 Level  = 0
-                speed = 5 #change also main variable
+                speed = 2 #change also main variable
                 game_paused = False
             else:
                 game_paused = False
@@ -451,6 +460,9 @@ while run:
                
         # Background drawing
         middle.middle_line_move()
+        middle2.middle_line_move()
+        middle3.middle_line_move()
+        middle4.middle_line_move()
         #assets movement
         for i in range(len(asset_list)):
             asset_list[i].asset_movement()
